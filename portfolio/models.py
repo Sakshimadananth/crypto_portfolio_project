@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from decimal import Decimal
 # Create your models here.
 # portfolio/models.py
 #from django.db import models
@@ -16,8 +17,8 @@ class CryptoCurrency(models.Model):
 
 class Holding(models.Model):
     cryptocurrency = models.CharField(max_length=100)
-    quantity = models.DecimalField(max_digits=20, decimal_places=5)
-    purchase_price = models.DecimalField(max_digits=20, decimal_places=2)
+    quantity = models.DecimalField(max_digits=20, decimal_places=10)
+    purchase_price = models.DecimalField(max_digits=20, decimal_places=4)
     purchase_date = models.DateField()
 
     def __str__(self):
@@ -29,8 +30,8 @@ class Portfolio(models.Model):
     image = models.CharField(max_length=100)
     cryptocurrency = models.CharField(max_length=100)
     symbol = models.CharField(max_length=10)
-    quantity = models.DecimalField(max_digits=10, decimal_places=2)
-    purchase_price = models.DecimalField(max_digits=10, decimal_places=2)
+    quantity = models.DecimalField(max_digits=20, decimal_places=10)
+    purchase_price = models.DecimalField(max_digits=20, decimal_places=2)
     purchase_date = models.DateField()
 
     def __str__(self):

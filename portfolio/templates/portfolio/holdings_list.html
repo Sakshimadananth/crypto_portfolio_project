@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cryptocurrency Holdings</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.7.4/web3.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" type="text/css" href="{% static 'portfolio/css/styles.css' %}">
@@ -34,6 +35,23 @@
     background-position: center; /* Center the background image */
     padding: 20px;
     margin-right: 0; /* Removes any right margin */
+}
+.left.buttons {
+    display: flex;
+    align-items: center;
+    gap: 15px; /* Adds space between all buttons */
+}
+.analysis_view {
+    background-color: #496d73;
+    color: white;
+    padding: 10px 20px;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+
+.analysis_view:hover {
+    background-color: #4589a0;
 }
 
 
@@ -227,6 +245,28 @@
     margin-right: 8px; /* Adjust spacing between icon and text */
     font-size: 16px; /* Adjust icon size */
 }
+.wallet-button {
+    background-color: #496d73; /* Color similar to Portfolio button */
+    color: white;
+    padding: 9px 19px;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+    display: inline-block;
+    margin-right: 20px;
+}
+
+.wallet-button:hover {
+    background-color: #4589a0;
+}
+
+.wallet-button i {
+    margin-right: 8px; /* Adds spacing between icon and text */
+    font-size: 16px;
+}
+
+
+
 
 
         .portfolio-button {
@@ -311,26 +351,65 @@
                 }
             });
         }
+        async function connectMetaMask() {
+        if (window.ethereum) {
+            window.web3 = new Web3(window.ethereum);
+            await window.ethereum.request({ method: "eth_requestAccounts" });
+            const accounts = await web3.eth.getAccounts();
+            return accounts[0];
+        } else {
+            alert("MetaMask is not installed!");
+            return null;
+        }
+    }
+
+    async function connectMetaMask() {
+        if (window.ethereum) {
+            window.web3 = new Web3(window.ethereum);
+            await window.ethereum.request({ method: "eth_requestAccounts" });
+            const accounts = await web3.eth.getAccounts();
+            return accounts[0];  // Return connected wallet address
+        } else {
+            alert("MetaMask is not installed! Please install MetaMask.");
+            return null;
+        }
+    }
+
+    async function buyCrypto() {
+        try {
+            const userAddress = await connectMetaMask();
+            if (!userAddress) return;
+
+            let recipient = prompt("Enter recipient wallet address:");
+            if (!recipient || !web3.utils.isAddress(recipient)) {
+                return alert("Invalid wallet address. Please enter a valid Ethereum address.");
+            }
+
+            let amount = prompt("Enter amount in ETH:");
+            amount = parseFloat(amount);
+            if (isNaN(amount) || amount <= 0) {
+                return alert("Invalid amount. Please enter a valid ETH amount.");
+            }
+
+            const transaction = {
+                from: userAddress,
+                to: recipient,
+                value: web3.utils.toWei(amount.toString(), "ether"),
+                gas: 21000,
+                gasPrice: await web3.eth.getGasPrice(),  // Fetches current gas price
+            };
+
+            const txHash = await web3.eth.sendTransaction(transaction);
+            alert("Transaction Sent! Hash: " + txHash.transactionHash);
+        } catch (error) {
+            alert("Transaction Failed: " + error.message);
+        }
+    }
+</script>
+
     </script>
 </head>
 <body>
-    <!-- <nav>
-        
-        <a href="{% url 'portfolio' %}" class="portfolio-button">My Portfolio</a>
-        <ul>
-            {% if user.is_authenticated %}
-                <li id="logout-form">
-                    <form action="{% url 'logout' %}" method="post">
-                        {% csrf_token %}
-                        <button type="submit">Logout</button>
-                    </form>
-                </li>
-            {% else %}
-                <li><a href="{% url 'login' %}">Login</a></li>
-                <li><a href="{% url 'register' %}">Register</a></li>
-            {% endif %}
-        </ul>
-    </nav> -->
     <nav>
         <div class="left buttons">
             <a href="{% url 'portfolio' %}" class="portfolio-button">
@@ -339,6 +418,19 @@
             <a href="https://cryptoslate.com/" target="_blank" class="news-button">
                 <i class="fas fa-newspaper"></i> News
             </a>
+            <a href="{% url 'wallet_balance_page' %}" class="wallet-button">
+                <i class="fas fa-wallet"></i> Check Balance
+            </a>
+            <a href="#" class="portfolio-button" onclick="buyCrypto()">
+                <i class="fas fa-exchange-alt"></i> Transfer
+            </a>
+            <!-- <a href="https://coincodex.com/predictions/" target="_blank" class="news-button">
+                <i class="fas fa-chart-line"></i> Analysis
+            </a> -->
+            <a href="{% url 'analysis' %}" class="analysis_view">
+                <i class="fas fa-chart-line"></i> Analysis
+            </a>
+            
         </div>
         <ul>
             <li>
@@ -372,6 +464,10 @@
             {% endif %}
         </ul>
     </nav>
+    
+    
+    
+   
     
     
     
@@ -418,6 +514,3 @@
     </div>
 </body>
 </html>
-
-
-add another button similar to 'my portfolio ' button in the nav bar with 'news' glyphicon ,which redirects you to this news website -CryptoSlate - https://cryptoslate.com/
